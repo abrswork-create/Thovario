@@ -3,7 +3,12 @@ workflows:
     name: iOS Workflow
     instance_type: mac_mini_m2
     max_build_duration: 60
+    integrations:
+      app_store_connect: cd
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.thov.thovario
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -22,3 +27,8 @@ workflows:
       - build/ios/ipa/*.ipa
       - /Users/builder/Library/Logs/Gym/*.log
       - flutter_drive.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
