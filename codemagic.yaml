@@ -6,14 +6,16 @@ workflows:
     integrations:
       app_store_connect: cd
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.thov.thovario
       flutter: stable
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Set up code signing settings on Xcode project
+      - name: Automatically create/fetch code signing certificates & profiles
+        script: |
+          app-store-connect fetch-signing-files "com.thov.thovario" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Apply code signing settings to Xcode project
         script: xcode-project use-profiles
       - name: Get Flutter packages
         script: flutter packages pub get
