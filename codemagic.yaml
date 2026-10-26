@@ -6,9 +6,6 @@ workflows:
     integrations:
       app_store_connect: cd
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.thov.thovario
       flutter: stable
       xcode: latest
       cocoapods: default
