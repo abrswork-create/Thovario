@@ -10,11 +10,14 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Automatically create/fetch code signing certificates & profiles
+      - name: Automatically create/fetch code signing certificates & profiles in cloud
         script: |
+          keychain initialize
           app-store-connect fetch-signing-files "com.thov.thovario" \
             --type IOS_APP_STORE \
-            --create
+            --create \
+            --certificate-key=cloud
+          keychain add-certificates
       - name: Apply code signing settings to Xcode project
         script: xcode-project use-profiles
       - name: Get Flutter packages
