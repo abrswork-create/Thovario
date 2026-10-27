@@ -10,13 +10,14 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Automatically create/fetch code signing certificates & profiles in cloud
+      - name: Automatically create and setup certificate & profile in cloud runner
         script: |
           keychain initialize
+          ssh-keygen -t rsa -b 2048 -m PEM -f /tmp/cert_key -N ""
           app-store-connect fetch-signing-files "com.thov.thovario" \
             --type IOS_APP_STORE \
             --create \
-            --certificate-key=cloud
+            --certificate-key=/tmp/cert_key
           keychain add-certificates
       - name: Apply code signing settings to Xcode project
         script: xcode-project use-profiles
