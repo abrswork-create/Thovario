@@ -48,4 +48,18 @@ class HomeViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> shufflePrompt() async {
+    try {
+      final prompts = await _promptService.loadPrompts();
+      if (prompts.isNotEmpty) {
+        final list = prompts.where((p) => p != _dailyPrompt).toList();
+        if (list.isNotEmpty) {
+          list.shuffle();
+          _dailyPrompt = list.first;
+          notifyListeners();
+        }
+      }
+    } catch (_) {}
+  }
 }

@@ -9,6 +9,7 @@ class WriteViewModel extends ChangeNotifier {
 
   late final TextEditingController titleController;
   late final TextEditingController contentController;
+  String _selectedMood = 'reflective';
 
   bool _isSaving = false;
   String? _errorMessage;
@@ -18,6 +19,7 @@ class WriteViewModel extends ChangeNotifier {
     Thought? existingThought,
     String? initialPrompt,
   }) : _existingThought = existingThought {
+    _selectedMood = existingThought?.mood ?? 'reflective';
     titleController = TextEditingController(text: existingThought?.title ?? '');
     contentController = TextEditingController(
       text: existingThought?.content ?? '',
@@ -30,6 +32,14 @@ class WriteViewModel extends ChangeNotifier {
   bool get isEditing => _existingThought != null;
   bool get isSaving => _isSaving;
   String? get errorMessage => _errorMessage;
+  String get selectedMood => _selectedMood;
+
+  void setMood(String mood) {
+    if (_selectedMood != mood) {
+      _selectedMood = mood;
+      notifyListeners();
+    }
+  }
 
   bool get canSave {
     final title = titleController.text.trim();
@@ -43,9 +53,12 @@ class WriteViewModel extends ChangeNotifier {
 
     if (_existingThought != null) {
       return currentTitle != _existingThought.title.trim() ||
-          currentContent != _existingThought.content.trim();
+          currentContent != _existingThought.content.trim() ||
+          _selectedMood != _existingThought.mood;
     } else {
-      return currentTitle.isNotEmpty || currentContent.isNotEmpty;
+      return currentTitle.isNotEmpty ||
+          currentContent.isNotEmpty ||
+          _selectedMood != 'reflective';
     }
   }
 
@@ -72,6 +85,7 @@ class WriteViewModel extends ChangeNotifier {
             DateTime.now().microsecondsSinceEpoch.toString(),
         title: title,
         content: content,
+        mood: _selectedMood,
         createdAt: _existingThought?.createdAt ?? now,
         updatedAt: now,
         isFavorite: _existingThought?.isFavorite ?? false,

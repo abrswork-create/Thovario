@@ -6,7 +6,9 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/confirmation_dialog.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../data/models/mood.dart';
 import '../../../data/models/thought.dart';
+import '../../insights/view_models/insights_view_model.dart';
 import '../../write/screens/write_screen.dart';
 import '../view_models/thoughts_view_model.dart';
 import '../widgets/thought_card.dart';
@@ -52,6 +54,7 @@ class _ThoughtsScreenState extends State<ThoughtsScreen> {
         .then((saved) {
           if (saved == true && mounted) {
             context.read<ThoughtsViewModel>().loadThoughts();
+            Provider.of<InsightsViewModel?>(context, listen: false)?.loadInsights();
           }
         });
   }
@@ -152,6 +155,43 @@ class _ThoughtsScreenState extends State<ThoughtsScreen> {
               ),
             ),
 
+            // Horizontal Mood Filter Selector
+            SizedBox(
+              height: 34,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppTheme.spacingLg,
+                ),
+                children: [
+                  _MoodFilterChip(
+                    label: 'All',
+                    icon: CupertinoIcons.layers,
+                    isSelected: viewModel.selectedMoodFilter == null,
+                    color: isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                    onTap: () => viewModel.setMoodFilter(null),
+                  ),
+                  const SizedBox(width: AppTheme.spacingSm),
+                  ...Mood.all.map((mood) {
+                    final isSelected = viewModel.selectedMoodFilter == mood.key;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: AppTheme.spacingSm),
+                      child: _MoodFilterChip(
+                        label: mood.label,
+                        icon: mood.icon,
+                        isSelected: isSelected,
+                        color: mood.color,
+                        onTap: () => viewModel.setMoodFilter(
+                          isSelected ? null : mood.key,
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppTheme.spacingSm),
+
             // Main Content Area
             Expanded(
               child: Builder(
@@ -247,6 +287,7 @@ class _ThoughtsScreenState extends State<ThoughtsScreen> {
                         },
                         onDismissed: (direction) {
                           viewModel.deleteThought(thought.id);
+                          Provider.of<InsightsViewModel?>(context, listen: false)?.loadInsights();
                         },
                         child: ThoughtCard(
                           thought: thought,
@@ -258,6 +299,69 @@ class _ThoughtsScreenState extends State<ThoughtsScreen> {
                     },
                   );
                 },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MoodFilterChip extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _MoodFilterChip({
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = isDark
+        ? AppColors.darkPrimaryText
+        : AppColors.lightPrimaryText;
+    final secondaryColor = isDark
+        ? AppColors.darkSecondaryText
+        : AppColors.lightSecondaryText;
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? color.withValues(alpha: isDark ? 0.25 : 0.15)
+              : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? color
+                : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+            width: isSelected ? 1.5 : 0.8,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12, color: isSelected ? color : secondaryColor),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected ? primaryColor : secondaryColor,
               ),
             ),
           ],

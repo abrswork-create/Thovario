@@ -6,8 +6,10 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/confirmation_dialog.dart';
+import '../../../data/models/mood.dart';
 import '../../../data/models/thought.dart';
 import '../../../data/services/export_service.dart';
+import '../../insights/view_models/insights_view_model.dart';
 import '../../write/screens/write_screen.dart';
 import '../view_models/thoughts_view_model.dart';
 
@@ -54,6 +56,7 @@ class _ThoughtDetailScreenState extends State<ThoughtDetailScreen> {
       final viewModel = context.read<ThoughtsViewModel>();
       await viewModel.deleteThought(_currentThought.id);
       if (mounted) {
+        Provider.of<InsightsViewModel?>(context, listen: false)?.loadInsights();
         Navigator.of(context).pop();
       }
     }
@@ -68,7 +71,10 @@ class _ThoughtDetailScreenState extends State<ThoughtDetailScreen> {
 
     if (updated == true && mounted) {
       final viewModel = context.read<ThoughtsViewModel>();
+      final insightsVm = Provider.of<InsightsViewModel?>(context, listen: false);
       await viewModel.loadThoughts();
+      insightsVm?.loadInsights();
+      if (!mounted) return;
       final fresh = viewModel.thoughts.firstWhere(
         (t) => t.id == _currentThought.id,
         orElse: () => _currentThought,
@@ -112,6 +118,7 @@ class _ThoughtDetailScreenState extends State<ThoughtDetailScreen> {
         ? AppColors.darkSecondaryText
         : AppColors.lightSecondaryText;
     final hasTitle = _currentThought.title.trim().isNotEmpty;
+    final moodObj = Mood.fromKey(_currentThought.mood);
 
     return Scaffold(
       appBar: AppBar(
@@ -199,6 +206,38 @@ class _ThoughtDetailScreenState extends State<ThoughtDetailScreen> {
                       ),
                     ),
                   ],
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: moodObj.color.withValues(
+                        alpha: isDark ? 0.2 : 0.12,
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: moodObj.color.withValues(alpha: 0.3),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(moodObj.icon, size: 12, color: moodObj.color),
+                        const SizedBox(width: 5),
+                        Text(
+                          moodObj.label,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: moodObj.color,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: AppTheme.spacingLg),

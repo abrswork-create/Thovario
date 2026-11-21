@@ -1,10 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../core/theme/app_colors.dart';
 import '../features/favorites/screens/favorites_screen.dart';
 import '../features/home/screens/home_screen.dart';
+import '../features/home/view_models/home_view_model.dart';
+import '../features/insights/screens/insights_screen.dart';
+import '../features/insights/view_models/insights_view_model.dart';
 import '../features/settings/screens/settings_screen.dart';
 import '../features/thoughts/screens/thoughts_screen.dart';
+import '../features/thoughts/view_models/thoughts_view_model.dart';
 
 /// Bottom navigation container for Thovario.
 class MainNavigation extends StatefulWidget {
@@ -23,12 +28,24 @@ class _MainNavigationState extends State<MainNavigation> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeViewModel>().loadHomeData();
+      context.read<ThoughtsViewModel>().loadThoughts();
+      Provider.of<InsightsViewModel?>(context, listen: false)?.loadInsights();
+    });
   }
 
   void _onSelectTab(int index) {
     setState(() {
       _currentIndex = index;
     });
+    if (index == 0) {
+      context.read<HomeViewModel>().loadHomeData();
+    } else if (index == 1) {
+      context.read<ThoughtsViewModel>().loadThoughts();
+    } else if (index == 2) {
+      Provider.of<InsightsViewModel?>(context, listen: false)?.loadInsights();
+    }
   }
 
   @override
@@ -46,6 +63,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final screens = [
       HomeScreen(onSelectTab: _onSelectTab),
       const ThoughtsScreen(),
+      const InsightsScreen(),
       FavoritesScreen(onNavigateToThoughts: () => _onSelectTab(1)),
       const SettingsScreen(),
     ];
@@ -83,22 +101,31 @@ class _MainNavigationState extends State<MainNavigation> {
                   onTap: () => _onSelectTab(1),
                 ),
                 _NavBarItem(
-                  icon: CupertinoIcons.star,
-                  activeIcon: CupertinoIcons.star_fill,
-                  label: 'Favorites',
+                  icon: CupertinoIcons.chart_bar_alt_fill,
+                  activeIcon: CupertinoIcons.chart_bar_alt_fill,
+                  label: 'Insights',
                   isSelected: _currentIndex == 2,
                   activeColor: accentColor,
                   inactiveColor: unselectedColor,
                   onTap: () => _onSelectTab(2),
                 ),
                 _NavBarItem(
-                  icon: CupertinoIcons.gear,
-                  activeIcon: CupertinoIcons.gear_solid,
-                  label: 'Settings',
+                  icon: CupertinoIcons.star,
+                  activeIcon: CupertinoIcons.star_fill,
+                  label: 'Favorites',
                   isSelected: _currentIndex == 3,
                   activeColor: accentColor,
                   inactiveColor: unselectedColor,
                   onTap: () => _onSelectTab(3),
+                ),
+                _NavBarItem(
+                  icon: CupertinoIcons.gear,
+                  activeIcon: CupertinoIcons.gear_solid,
+                  label: 'Settings',
+                  isSelected: _currentIndex == 4,
+                  activeColor: accentColor,
+                  inactiveColor: unselectedColor,
+                  onTap: () => _onSelectTab(4),
                 ),
               ],
             ),

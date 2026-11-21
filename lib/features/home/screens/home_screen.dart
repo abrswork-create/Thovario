@@ -8,6 +8,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../data/models/thought.dart';
+import '../../insights/view_models/insights_view_model.dart';
 import '../../thoughts/screens/thought_detail_screen.dart';
 import '../../thoughts/view_models/thoughts_view_model.dart';
 import '../../thoughts/widgets/thought_card.dart';
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _refresh() {
     context.read<HomeViewModel>().loadHomeData();
     context.read<ThoughtsViewModel>().loadThoughts();
+    Provider.of<InsightsViewModel?>(context, listen: false)?.loadInsights();
   }
 
   void _navigateToWrite({String? prompt}) {
@@ -169,6 +171,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     letterSpacing: 1.2,
                                     fontWeight: FontWeight.w600,
                                   ),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              icon: Icon(
+                                CupertinoIcons.arrow_2_circlepath,
+                                size: 16,
+                                color: secondaryColor,
+                              ),
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              tooltip: 'Get another prompt',
+                              onPressed: () => homeVm.shufflePrompt(),
                             ),
                           ],
                         ),

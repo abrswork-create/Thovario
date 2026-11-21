@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/confirmation_dialog.dart';
+import '../../../data/models/mood.dart';
 import '../../../data/models/thought.dart';
 import '../../../data/repositories/thought_repository.dart';
 import '../view_models/write_view_model.dart';
@@ -215,6 +216,76 @@ class _WriteScreenContentState extends State<_WriteScreenContent> {
                       filled: false,
                     ),
                   ),
+
+                  // Mood Selection Bar
+                  SizedBox(
+                    height: 40,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: Mood.all.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: AppTheme.spacingSm),
+                      itemBuilder: (context, index) {
+                        final mood = Mood.all[index];
+                        final isSelected = viewModel.selectedMood == mood.key;
+                        return InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: () => viewModel.setMood(mood.key),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 180),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? mood.color.withValues(
+                                      alpha: isDark ? 0.25 : 0.15,
+                                    )
+                                  : (isDark
+                                      ? AppColors.darkSurface
+                                      : AppColors.lightSurface),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: isSelected
+                                    ? mood.color
+                                    : (isDark
+                                        ? AppColors.darkBorder
+                                        : AppColors.lightBorder),
+                                width: isSelected ? 1.5 : 1,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  mood.icon,
+                                  size: 14,
+                                  color: isSelected
+                                      ? mood.color
+                                      : secondaryColor,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  mood.label,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                    color: isSelected
+                                        ? primaryColor
+                                        : secondaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.spacingSm),
 
                   Divider(
                     color: isDark

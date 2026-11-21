@@ -4,24 +4,26 @@ import 'package:sqflite/sqflite.dart';
 class DatabaseMigrations {
   DatabaseMigrations._();
 
-  static const int currentVersion = 1;
+  static const int currentVersion = 2;
 
   static const String tableName = 'thoughts';
 
   static const String columnId = 'id';
   static const String columnTitle = 'title';
   static const String columnContent = 'content';
+  static const String columnMood = 'mood';
   static const String columnCreatedAt = 'created_at';
   static const String columnUpdatedAt = 'updated_at';
   static const String columnIsFavorite = 'is_favorite';
 
-  /// Initial database creation script (version 1)
+  /// Initial database creation script (version 1 & 2)
   static Future<void> onCreate(Database db, int version) async {
     await db.execute('''
       CREATE TABLE $tableName (
         $columnId TEXT PRIMARY KEY,
         $columnTitle TEXT NOT NULL DEFAULT '',
         $columnContent TEXT NOT NULL,
+        $columnMood TEXT NOT NULL DEFAULT 'reflective',
         $columnCreatedAt TEXT NOT NULL,
         $columnUpdatedAt TEXT NOT NULL,
         $columnIsFavorite INTEGER NOT NULL DEFAULT 0
@@ -35,6 +37,9 @@ class DatabaseMigrations {
     await db.execute('''
       CREATE INDEX idx_thoughts_is_favorite ON $tableName ($columnIsFavorite)
     ''');
+    await db.execute('''
+      CREATE INDEX idx_thoughts_mood ON $tableName ($columnMood)
+    ''');
   }
 
   /// Version upgrades handler
@@ -43,6 +48,13 @@ class DatabaseMigrations {
     int oldVersion,
     int newVersion,
   ) async {
-    // For future schema version migrations
+    if (oldVersion < 2) {
+      await db.execute(
+        "ALTER TABLE $tableName ADD COLUMN $columnMood TEXT NOT NULL DEFAULT 'reflective'",
+      );
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_thoughts_mood ON $tableName ($columnMood)',
+      );
+    }
   }
 }

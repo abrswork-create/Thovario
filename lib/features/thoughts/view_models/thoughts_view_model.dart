@@ -10,17 +10,33 @@ class ThoughtsViewModel extends ChangeNotifier {
   List<Thought> _favoriteThoughts = [];
   bool _isLoading = false;
   String _searchQuery = '';
+  String? _selectedMoodFilter;
   bool _newestFirst = true;
   String? _errorMessage;
 
   ThoughtsViewModel({required this._thoughtRepository});
 
-  List<Thought> get thoughts => _thoughts;
+  List<Thought> get thoughts {
+    if (_selectedMoodFilter == null || _selectedMoodFilter!.isEmpty) {
+      return _thoughts;
+    }
+    return _thoughts.where((t) => t.mood == _selectedMoodFilter).toList();
+  }
+
+  List<Thought> get allUnfilteredThoughts => _thoughts;
   List<Thought> get favoriteThoughts => _favoriteThoughts;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
+  String? get selectedMoodFilter => _selectedMoodFilter;
   bool get newestFirst => _newestFirst;
   String? get errorMessage => _errorMessage;
+
+  void setMoodFilter(String? mood) {
+    if (_selectedMoodFilter != mood) {
+      _selectedMoodFilter = mood;
+      notifyListeners();
+    }
+  }
 
   Future<void> loadThoughts() async {
     _isLoading = true;

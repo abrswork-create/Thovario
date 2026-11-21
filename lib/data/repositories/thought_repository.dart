@@ -44,6 +44,17 @@ class ThoughtRepository {
     return await _databaseService.getFavorites(newestFirst: newestFirst);
   }
 
+  Future<List<Thought>> getThoughtsByMood(
+    String mood, {
+    bool newestFirst = true,
+  }) async {
+    return await _databaseService.getByMood(mood, newestFirst: newestFirst);
+  }
+
+  Future<Map<String, int>> getMoodCounts() async {
+    return await _databaseService.getMoodCounts();
+  }
+
   Future<void> toggleFavorite(String id, bool currentStatus) async {
     await _databaseService.setFavorite(id, !currentStatus);
   }

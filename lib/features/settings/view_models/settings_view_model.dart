@@ -4,28 +4,54 @@ import '../../../core/constants/storage_keys.dart';
 import '../../../data/models/thought.dart';
 import '../../../data/repositories/thought_repository.dart';
 import '../../../data/services/export_service.dart';
+import '../../../data/services/security_service.dart';
 
-/// ViewModel managing settings, theme preference, and database maintenance.
+/// ViewModel managing settings, theme preference, biometric lock, and database maintenance.
 class SettingsViewModel extends ChangeNotifier {
   final SharedPreferences _prefs;
-  final ThoughtRepository _thoughtRepository;
+  final ThoughtRepository thoughtRepository;
   final ExportService _exportService;
+  final SecurityService _securityService;
 
   ThemeMode _themeMode = ThemeMode.dark;
   bool _isExporting = false;
   bool _isDeleting = false;
 
   SettingsViewModel({
-    required this._prefs,
-    required this._thoughtRepository,
+    required SharedPreferences prefs,
+    required this.thoughtRepository,
     ExportService? exportService,
-  }) : _exportService = exportService ?? ExportService() {
+    SecurityService? securityService,
+  }) : _prefs = prefs,
+       _exportService = exportService ?? ExportService(),
+       _securityService =
+           securityService ?? SecurityService(prefs: prefs) {
     _loadThemeMode();
   }
 
   ThemeMode get themeMode => _themeMode;
   bool get isExporting => _isExporting;
   bool get isDeleting => _isDeleting;
+  bool get isBiometricEnabled => _securityService.isBiometricEnabled;
+  SecurityService get securityService => _securityService;
+
+  Future<bool> toggleBiometricLock(bool enable) async {
+    if (enable) {
+      final canAuth = await _securityService.canAuthenticate();
+      if (!canAuth) return false;
+      final authed = await _securityService.authenticate(
+        reason: 'Verify Face ID or Passcode to enable biometric lock',
+      );
+      if (!authed) return false;
+      await _securityService.setBiometricEnabled(true);
+      notifyListeners();
+      return true;
+    } else {
+      await _securityService.setBiometricEnabled(false);
+      notifyListeners();
+      return true;
+    }
+  }
 
   void _loadThemeMode() {
     final savedMode = _prefs.getString(StorageKeys.themeMode);
@@ -63,7 +89,7 @@ class SettingsViewModel extends ChangeNotifier {
     _isExporting = true;
     notifyListeners();
     try {
-      final thoughts = await _thoughtRepository.getThoughts(newestFirst: true);
+      final thoughts = await thoughtRepository.getThoughts(newestFirst: true);
       return await _exportService.exportThoughts(
         thoughts,
         sharePositionOrigin: sharePositionOrigin,
@@ -79,7 +105,7 @@ class SettingsViewModel extends ChangeNotifier {
     _isDeleting = true;
     notifyListeners();
     try {
-      await _thoughtRepository.deleteAllThoughts();
+      await thoughtRepository.deleteAllThoughts();
     } finally {
       _isDeleting = false;
       notifyListeners();
@@ -87,6 +113,6 @@ class SettingsViewModel extends ChangeNotifier {
   }
 
   Future<List<Thought>> getAllThoughts() async {
-    return await _thoughtRepository.getThoughts();
+    return await thoughtRepository.getThoughts();
   }
 }

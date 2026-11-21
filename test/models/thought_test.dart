@@ -22,6 +22,7 @@ void main() {
       expect(map['content'], 'Some things do not need to be sent.');
       expect(map['created_at'], '2026-10-19T14:30:00.000Z');
       expect(map['updated_at'], '2026-10-19T14:30:00.000Z');
+      expect(map['mood'], 'reflective');
       expect(map['is_favorite'], 1);
     });
 
@@ -30,6 +31,7 @@ void main() {
         'id': 'test-uuid-2',
         'title': 'An Unsent Note',
         'content': 'Words kept safe in the quiet.',
+        'mood': 'calm',
         'created_at': '2026-10-19T14:30:00.000Z',
         'updated_at': '2026-10-19T14:30:00.000Z',
         'is_favorite': 0,
@@ -40,6 +42,7 @@ void main() {
       expect(thought.id, 'test-uuid-2');
       expect(thought.title, 'An Unsent Note');
       expect(thought.content, 'Words kept safe in the quiet.');
+      expect(thought.mood, 'calm');
       expect(thought.createdAt, testDate);
       expect(thought.updatedAt, testDate);
       expect(thought.isFavorite, false);

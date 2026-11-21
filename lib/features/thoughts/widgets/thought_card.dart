@@ -5,6 +5,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/text_helpers.dart';
+import '../../../data/models/mood.dart';
 import '../../../data/models/thought.dart';
 
 /// Reusable card widget for displaying a thought summary in lists.
@@ -37,6 +38,7 @@ class ThoughtCard extends StatelessWidget {
     final hasTitle = thought.title.trim().isNotEmpty;
     final preview = TextHelpers.truncate(thought.content, maxLength: 140);
     final dateLabel = DateFormatter.formatCard(thought.createdAt);
+    final moodObj = Mood.fromKey(thought.mood);
 
     return Container(
       decoration: BoxDecoration(
@@ -109,10 +111,47 @@ class ThoughtCard extends StatelessWidget {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (hasTitle) ...[
-                  const SizedBox(height: AppTheme.spacingSm),
-                  Text(dateLabel, style: AppTypography.caption(secondaryColor)),
-                ],
+                const SizedBox(height: AppTheme.spacingSm),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      dateLabel,
+                      style: AppTypography.caption(secondaryColor),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: moodObj.color.withValues(
+                          alpha: isDark ? 0.2 : 0.12,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: moodObj.color.withValues(alpha: 0.3),
+                          width: 0.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(moodObj.icon, size: 11, color: moodObj.color),
+                          const SizedBox(width: 4),
+                          Text(
+                            moodObj.label,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              color: moodObj.color,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

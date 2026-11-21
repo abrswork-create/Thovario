@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/confirmation_dialog.dart';
+import '../../insights/view_models/insights_view_model.dart';
 import '../../thoughts/view_models/thoughts_view_model.dart';
 import '../view_models/settings_view_model.dart';
 
@@ -69,6 +70,7 @@ class SettingsScreen extends StatelessWidget {
         await viewModel.deleteAllThoughts();
         if (context.mounted) {
           context.read<ThoughtsViewModel>().loadThoughts();
+          Provider.of<InsightsViewModel?>(context, listen: false)?.loadInsights();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('All entries have been permanently erased.'),
@@ -202,6 +204,51 @@ class SettingsScreen extends StatelessWidget {
                     onChanged: (mode) => viewModel.setThemeMode(mode!),
                   ),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: AppTheme.spacingXl),
+
+            // Security & Vault Section
+            _SectionHeader(
+              title: 'Security & Vault',
+              secondaryColor: secondaryColor,
+            ),
+            Material(
+              color: surfaceColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
+                side: BorderSide(color: borderColor, width: 1),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: SwitchListTile.adaptive(
+                secondary: Icon(
+                  CupertinoIcons.lock_shield,
+                  color: secondaryColor,
+                ),
+                title: Text(
+                  'Biometric Lock (Face ID)',
+                  style: AppTypography.body(primaryColor),
+                ),
+                subtitle: Text(
+                  'Require authentication to open Thovario',
+                  style: AppTypography.caption(secondaryColor),
+                ),
+                value: viewModel.isBiometricEnabled,
+                activeTrackColor:
+                    isDark ? AppColors.darkAccent : AppColors.lightAccent,
+                onChanged: (val) async {
+                  final ok = await viewModel.toggleBiometricLock(val);
+                  if (!ok && context.mounted && val) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Could not enable Face ID. Please ensure biometrics or passcode are set up.',
+                        ),
+                      ),
+                    );
+                  }
+                },
               ),
             ),
 

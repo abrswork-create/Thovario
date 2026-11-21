@@ -108,6 +108,36 @@ class DatabaseService {
     return maps.map((map) => Thought.fromMap(map)).toList();
   }
 
+  /// Retrieves thoughts filtered by a specific mood.
+  Future<List<Thought>> getByMood(String mood, {bool newestFirst = true}) async {
+    final db = await _db;
+    final order = newestFirst ? 'DESC' : 'ASC';
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseMigrations.tableName,
+      where: '${DatabaseMigrations.columnMood} = ?',
+      whereArgs: [mood],
+      orderBy: '${DatabaseMigrations.columnCreatedAt} $order',
+    );
+    return maps.map((map) => Thought.fromMap(map)).toList();
+  }
+
+  /// Calculates distribution counts for each mood.
+  Future<Map<String, int>> getMoodCounts() async {
+    final db = await _db;
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT ${DatabaseMigrations.columnMood}, COUNT(*) as count
+      FROM ${DatabaseMigrations.tableName}
+      GROUP BY ${DatabaseMigrations.columnMood}
+    ''');
+    final Map<String, int> counts = {};
+    for (final row in result) {
+      final mood = row[DatabaseMigrations.columnMood] as String? ?? 'reflective';
+      final count = (row['count'] as num?)?.toInt() ?? 0;
+      counts[mood] = count;
+    }
+    return counts;
+  }
+
   /// Updates the favorite status of a thought.
   Future<int> setFavorite(String id, bool isFavorite) async {
     final db = await _db;

@@ -84,4 +84,27 @@ class FakeThoughtRepository implements ThoughtRepository {
       _thoughts[index] = _thoughts[index].copyWith(isFavorite: !currentStatus);
     }
   }
+
+  @override
+  Future<List<Thought>> getThoughtsByMood(
+    String mood, {
+    bool newestFirst = true,
+  }) async {
+    final results = _thoughts.where((t) => t.mood == mood).toList();
+    results.sort(
+      (a, b) => newestFirst
+          ? b.createdAt.compareTo(a.createdAt)
+          : a.createdAt.compareTo(b.createdAt),
+    );
+    return results;
+  }
+
+  @override
+  Future<Map<String, int>> getMoodCounts() async {
+    final counts = <String, int>{};
+    for (final t in _thoughts) {
+      counts[t.mood] = (counts[t.mood] ?? 0) + 1;
+    }
+    return counts;
+  }
 }
