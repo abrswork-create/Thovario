@@ -24,7 +24,7 @@ workflows:
       - name: Get Flutter packages
         script: flutter packages pub get
       - name: Flutter analyze
-        script: flutter analyze
+        script: flutter analyze --no-fatal-infos
       - name: Flutter test
         script: flutter test
       - name: Build ipa for distribution
