@@ -57,7 +57,7 @@ class LockScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: AppTheme.spacingXl),
                   Text(
-                    'Thovario Vault',
+                    'App Lock',
                     style: AppTypography.headline(primaryColor).copyWith(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -65,7 +65,7 @@ class LockScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: AppTheme.spacingSm),
                   Text(
-                    'Your private reflections are protected by biometric encryption.',
+                    'Authenticate with Face ID, Touch ID, or device passcode to continue.',
                     style: AppTypography.body(secondaryColor),
                     textAlign: TextAlign.center,
                   ),
@@ -83,7 +83,7 @@ class LockScreen extends StatelessWidget {
                           )
                         : const Icon(CupertinoIcons.viewfinder, size: 20),
                     label: Text(
-                      isAuthenticating ? 'Authenticating...' : 'Unlock with Face ID',
+                      isAuthenticating ? 'Authenticating...' : 'Unlock Thovario',
                       style: AppTypography.button(Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(

@@ -209,9 +209,9 @@ class SettingsScreen extends StatelessWidget {
 
             const SizedBox(height: AppTheme.spacingXl),
 
-            // Security & Vault Section
+            // Security & Privacy Section
             _SectionHeader(
-              title: 'Security & Vault',
+              title: 'Security & Privacy',
               secondaryColor: secondaryColor,
             ),
             Material(

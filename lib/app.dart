@@ -117,6 +117,16 @@ class _AuthGateState extends State<_AuthGate> with WidgetsBindingObserver {
       return;
     }
     setState(() => _isAuthenticating = true);
+    final canAuth = await settingsVm.securityService.canAuthenticate();
+    if (!canAuth) {
+      if (mounted) {
+        setState(() {
+          _isAuthenticating = false;
+          _isLocked = false;
+        });
+      }
+      return;
+    }
     final success = await settingsVm.securityService.authenticate();
     if (mounted) {
       setState(() {
