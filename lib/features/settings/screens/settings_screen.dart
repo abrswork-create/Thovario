@@ -209,51 +209,6 @@ class SettingsScreen extends StatelessWidget {
 
             const SizedBox(height: AppTheme.spacingXl),
 
-            // Security & Privacy Section
-            _SectionHeader(
-              title: 'Security & Privacy',
-              secondaryColor: secondaryColor,
-            ),
-            Material(
-              color: surfaceColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppTheme.radiusMedium),
-                side: BorderSide(color: borderColor, width: 1),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: SwitchListTile.adaptive(
-                secondary: Icon(
-                  CupertinoIcons.lock_shield,
-                  color: secondaryColor,
-                ),
-                title: Text(
-                  'Biometric Lock (Face ID)',
-                  style: AppTypography.body(primaryColor),
-                ),
-                subtitle: Text(
-                  'Require authentication to open Thovario',
-                  style: AppTypography.caption(secondaryColor),
-                ),
-                value: viewModel.isBiometricEnabled,
-                activeTrackColor:
-                    isDark ? AppColors.darkAccent : AppColors.lightAccent,
-                onChanged: (val) async {
-                  final ok = await viewModel.toggleBiometricLock(val);
-                  if (!ok && context.mounted && val) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Could not enable Face ID. Please ensure biometrics or passcode are set up.',
-                        ),
-                      ),
-                    );
-                  }
-                },
-              ),
-            ),
-
-            const SizedBox(height: AppTheme.spacingXl),
-
             // Data Management Section
             _SectionHeader(
               title: 'Data & Privacy',
